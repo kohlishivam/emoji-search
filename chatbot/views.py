@@ -66,5 +66,3 @@ class MyChatBotView(generic.View):
 
 		return HttpResponse()  
 
-def index(request):
-	return HttpResponse('Hello world')

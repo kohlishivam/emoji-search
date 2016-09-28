@@ -40,7 +40,8 @@ def post_facebook_message(fbid,message_text):
 
 class MyChatBotView(generic.View):
 	def get(self, request, *args, **kwargs):
-		if self.request.GET['hub.verify_token'] == VERIFY_TOKEN :
+		if self.request.GET['hub.verify_token'
+		] == VERIFY_TOKEN :
 			return HttpResponse(self.request.GET['hub.challenge'])
 		else:
 			return HttpResponse('Oops invalid token')
@@ -66,3 +67,5 @@ class MyChatBotView(generic.View):
 
 		return HttpResponse()  
 
+def index(request):
+	return HttpResponse('Hello world')

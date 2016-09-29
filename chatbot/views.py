@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 
 
+import json, requests, random, re
+from pprint import pprint
+
 from django.shortcuts import render
 from django.http import HttpResponse
 
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-import json
-import requests
 
 
 
@@ -67,44 +68,70 @@ PAGE_ACCESS_TOKEN = 'EAACkFTCZBIPoBAP759tQPOnY6ZBJyQIBolunC8KTudrvEeY2B3CAn1rT3c
 
 
 
+def post_facebook_message(fbid, recevied_message):
+    post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=%s'%PAGE_ACCESS_TOKEN
+    
+    response_msg3 = json.dumps(
+            {"recipient":{"id":fbid}, 
+                "message":{
+                    "attachment":{
+                        "type":"image",
+                        "payload":{
+                            "url":'http://thecatapi.com/api/images/get?format=src&type=png'
+                        }
+                    }
+                }
+         })
+    status = requests.post(post_message_url, headers={"Content-Type": "application/json"},data=response_msg3)
+    return
 
-def post_facebook_message(fbid,message_text):
-	post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=%s'%PAGE_ACCESS_TOKEN
-	response_text = recevied_message + ' :)'
-	response_text = emoji_search(recevied_message.lower())
-	response_msg = json.dumps({"recipient":{"id":fbid}, "message":{"text":message_text}})
-	status = requests.post(post_message_url, headers={"Content-Type": "application/json"},data=response_msg)
-	print status.json()
+    response_text = recevied_message + ' :)'
+    response_text = emoji_search(recevied_message.lower())
 
-
+    
+    response_msg = json.dumps({"recipient":{"id":fbid}, "message":{"text":response_text}})
+    
+    status = requests.post(post_message_url, headers={"Content-Type": "application/json"},data=response_msg)
+    pprint(status.json())
 
 
 class MyChatBotView(generic.View):
-	def get(self, request, *args, **kwargs):
-		if self.request.GET['hub.verify_token'
-		] == VERIFY_TOKEN :
-			return HttpResponse(self.request.GET['hub.challenge'])
-		else:
-			return HttpResponse('Oops invalid token')
+    def get(self, request, *args, **kwargs):
+        if self.request.GET['hub.verify_token'] == VERIFY_TOKEN:
+            return HttpResponse(self.request.GET['hub.challenge'])
+        else:
+            return HttpResponse('Error, invalid token')
+        
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return generic.View.dispatch(self, request, *args, **kwargs)
 
-	@method_decorator(csrf_exempt)
-	def dispatch(self, request, *args, **kwargs):
-		return generic.View.dispatch(self, request, *args, **kwargs)
-
-	def post(self, request, *args, **kwargs):
-		incoming_message= json.loads(self.request.body.decode('utf-8'))
-		print incoming_message
-
-		for entry in incoming_message['entry']:
-			for message in entry['messaging']:
-				print message
-				try:  
+    # Post function to handle Facebook messages
+    def post(self, request, *args, **kwargs):
+        # Converts the text payload into a python dictionary
+        incoming_message = json.loads(self.request.body.decode('utf-8'))
+        # Facebook recommends going through every entry since they might send
+        # multiple messages in a single call during high load
+        for entry in incoming_message['entry']:
+            for message in entry['messaging']:
+                # Check to make sure the received call is a message call
+                # This might be delivery, optin, postback for other events 
+                if 'message' in message:
+                    # Print the message to the terminal
+                    # Assuming the sender only sends text. Non-text messages like stickers, audio, pictures
+                    # are sent as attachments and must be handled accordingly. 
+                    try:  
                         post_facebook_message(message['sender']['id'], message['message']['text'])
                     except Exception as e:
                         print e
                         post_facebook_message(message['sender']['id'], 'Please send a valid text for emoji search.')
 
-		return HttpResponse()  
+
+        return HttpResponse()    
+
 
 def index(request):
-	return HttpResponse('Hello world')
+    search_string = request.GET.get("text")
+    print search_string
+    print test()
+    return HttpResponse(emoji_search(search_string))

@@ -29,7 +29,7 @@ PAGE_ACCESS_TOKEN = EAACkFTCZBIPoBAH2otifAKUl7Bzisq3TrGtMFFQ9FZAKaNouMWejpfYA21Y
 def post_facebook_message(fbid, recevied_message):
     post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=%s'%PAGE_ACCESS_TOKEN
     
-    response_msg = json.dumps(
+    response_msg3 = json.dumps(
             {"recipient":{"id":fbid}, 
                 "message":{
                     "attachment":{
@@ -44,7 +44,7 @@ def post_facebook_message(fbid, recevied_message):
     return
     response_msg = json.dumps({"recipient":{"id":fbid}, "message":{"text":response_text}})
     response_text = recevied_message + ' :)'
-    status = requests.post(post_message_url, headers={"Content-Type": "application/json"},data=response_msg)
+    status = requests.post(post_message_url, headers={"Content-Type": "application/json"},data=response_msg3)
     pprint(status.json())
 
 

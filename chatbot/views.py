@@ -26,6 +26,7 @@ emoji_arr = [["😄", "Smiling Face with Open Mouth and Smiling Eyes"], ["😃",
 PAGE_ACCESS_TOKEN = EAACkFTCZBIPoBAH2otifAKUl7Bzisq3TrGtMFFQ9FZAKaNouMWejpfYA21YwOS57tlzZBOoVZCKC3fRAUFgZAVXSvIVTUEhuVfMVbvWplpl23v3Hz5nJPhs9OdNdGYymluIZApZBEZCbvWNNQJI9GLa6nRz7CvCJkskbc1hLiwHOKwZDZD
 
 
+
 def emoji_search(search_string):
     if not search_string:
         return 'Emoji not found :('
@@ -78,14 +79,8 @@ def post_facebook_message(fbid, recevied_message):
     pprint(status.json())
 
 
-
-
-
-
-
-
-class MyChatBotView(generic.View):
-	 def get(self, request, *args, **kwargs):
+class MyQuoteBotView(generic.View):
+    def get(self, request, *args, **kwargs):
         if self.request.GET['hub.verify_token'] == VERIFY_TOKEN:
             return HttpResponse(self.request.GET['hub.challenge'])
         else:
@@ -117,10 +112,16 @@ class MyChatBotView(generic.View):
 
 
         return HttpResponse()    
-  
+
+
 
 def index(request):
     search_string = request.GET.get("text")
     print search_string
     print test()
     return HttpResponse(emoji_search(search_string))
+
+def test():
+    post_facebook_message('100006427286608','test message')
+
+

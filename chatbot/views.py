@@ -29,7 +29,7 @@ VERIFY_TOKEN = 'emojify'
 def post_facebook_message(fbid, recevied_message):
     post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=%s'%PAGE_ACCESS_TOKEN
     
-    response_msg3 = json.dumps(
+    response_msg = json.dumps(
             {"recipient":{"id":fbid}, 
                 "message":{
                     "attachment":{

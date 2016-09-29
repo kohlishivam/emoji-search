@@ -98,13 +98,11 @@ class MyChatBotView(generic.View):
 		for entry in incoming_message['entry']:
 			for message in entry['messaging']:
 				print message
-				try:
-					sender_id = message['sender']['id']
-					message_text = message['message']['text']
-					post_facebook_message(sender_id,message_text) 
-				except Exception as e:
-					print e
-					pass
+				try:  
+                        post_facebook_message(message['sender']['id'], message['message']['text'])
+                    except Exception as e:
+                        print e
+                        post_facebook_message(message['sender']['id'], 'Please send a valid text for emoji search.')
 
 		return HttpResponse()  
 

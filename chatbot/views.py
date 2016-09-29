@@ -85,33 +85,42 @@ def post_facebook_message(fbid, recevied_message):
 
 
 class MyChatBotView(generic.View):
-	def get(self, request, *args, **kwargs):
-		if self.request.GET['hub.verify_token'
-		] == VERIFY_TOKEN :
-			return HttpResponse(self.request.GET['hub.challenge'])
-		else:
-			return HttpResponse('Oops invalid token')
+	 def get(self, request, *args, **kwargs):
+        if self.request.GET['hub.verify_token'] == VERIFY_TOKEN:
+            return HttpResponse(self.request.GET['hub.challenge'])
+        else:
+            return HttpResponse('Error, invalid token')
+        
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return generic.View.dispatch(self, request, *args, **kwargs)
 
-	@method_decorator(csrf_exempt)
-	def dispatch(self, request, *args, **kwargs):
-		return generic.View.dispatch(self, request, *args, **kwargs)
+    # Post function to handle Facebook messages
+    def post(self, request, *args, **kwargs):
+        # Converts the text payload into a python dictionary
+        incoming_message = json.loads(self.request.body.decode('utf-8'))
+        # Facebook recommends going through every entry since they might send
+        # multiple messages in a single call during high load
+        for entry in incoming_message['entry']:
+            for message in entry['messaging']:
+                # Check to make sure the received call is a message call
+                # This might be delivery, optin, postback for other events 
+                if 'message' in message:
+                    # Print the message to the terminal
+                    # Assuming the sender only sends text. Non-text messages like stickers, audio, pictures
+                    # are sent as attachments and must be handled accordingly. 
+                    try:  
+                        post_facebook_message(message['sender']['id'], message['message']['text'])
+                    except Exception as e:
+                        print e
+                        post_facebook_message(message['sender']['id'], 'Please send a valid text for emoji search.')
 
-	def post(self, request, *args, **kwargs):
-		incoming_message= json.loads(self.request.body.decode('utf-8'))
-		print incoming_message
 
-		for entry in incoming_message['entry']:
-			for message in entry['messaging']:
-				print message
-				try:
-					sender_id = message['sender']['id']
-					message_text = message['message']['text']
-					post_facebook_message(sender_id,message_text) 
-				except Exception as e:
-					print e
-					pass
-
-		return HttpResponse()  
+        return HttpResponse()    
+  
 
 def index(request):
-	return HttpResponse('Hello world')
+    search_string = request.GET.get("text")
+    print search_string
+    print test()
+    return HttpResponse(emoji_search(search_string))

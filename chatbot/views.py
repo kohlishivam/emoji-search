@@ -63,12 +63,16 @@ def emoji_search(search_string):
 
 
 PAGE_ACCESS_TOKEN = 'EAACkFTCZBIPoBAP759tQPOnY6ZBJyQIBolunC8KTudrvEeY2B3CAn1rT3ckVJM5wsa4h1WWCLUXj2CpdZAynJyxTjx5p9gF9iaNnZBwURTmu3YyzjlMRzt42rVpjqtmkqzZC1EwgJzqo18H7O7onXEg7CaJQJymSrDUPSTvFZB8QZDZD'
+
+
+
+
+
 def post_facebook_message(fbid,message_text):
 	post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=%s'%PAGE_ACCESS_TOKEN
 	response_text = recevied_message + ' :)'
-    response_text = emoji_search(recevied_message.lower())
+	response_text = emoji_search(recevied_message.lower())
 	response_msg = json.dumps({"recipient":{"id":fbid}, "message":{"text":message_text}})
-
 	status = requests.post(post_message_url, headers={"Content-Type": "application/json"},data=response_msg)
 	print status.json()
 

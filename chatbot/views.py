@@ -27,30 +27,7 @@ PAGE_ACCESS_TOKEN = 'EAACkFTCZBIPoBAH2otifAKUl7Bzisq3TrGtMFFQ9FZAKaNouMWejpfYA21
 
 
 
-def emoji_search(search_string):
-    if not search_string:
-        return 'Emoji not found :('
 
-    if search_string in '*,random,anything'.split(','):
-        random.shuffle(emoji_arr)
-        return emoji_arr[0][0] + ' : '+emoji_arr[0][1]
-
-    tokens = re.sub(r"[^a-zA-Z0-9\s]",' ',search_string).lower().split()
-    print tokens
-
-    result_arr = []
-
-    for token in tokens:
-        for emoji,emoji_text in emoji_arr:
-            if token in emoji_text.lower():
-                result_arr.append(emoji)
-            
-    
-    if not result_arr:
-        return 'Emoji not found :('
-    else:
-        random.shuffle(result_arr)
-        return " ".join(result_arr[:5])
 
 def post_facebook_message(fbid, recevied_message):
     post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=%s'%PAGE_ACCESS_TOKEN
@@ -68,10 +45,6 @@ def post_facebook_message(fbid, recevied_message):
          })
     status = requests.post(post_message_url, headers={"Content-Type": "application/json"},data=response_msg3)
     return
-
-    response_text = recevied_message + ' :)'
-    response_text = emoji_search(recevied_message.lower())
-
     
     response_msg = json.dumps({"recipient":{"id":fbid}, "message":{"text":response_text}})
     
@@ -90,20 +63,12 @@ class MyChatBotView(generic.View):
     def dispatch(self, request, *args, **kwargs):
         return generic.View.dispatch(self, request, *args, **kwargs)
 
-    # Post function to handle Facebook messages
+    
     def post(self, request, *args, **kwargs):
-        # Converts the text payload into a python dictionary
         incoming_message = json.loads(self.request.body.decode('utf-8'))
-        # Facebook recommends going through every entry since they might send
-        # multiple messages in a single call during high load
         for entry in incoming_message['entry']:
-            for message in entry['messaging']:
-                # Check to make sure the received call is a message call
-                # This might be delivery, optin, postback for other events 
+            for message in entry['messaging']: 
                 if 'message' in message:
-                    # Print the message to the terminal
-                    # Assuming the sender only sends text. Non-text messages like stickers, audio, pictures
-                    # are sent as attachments and must be handled accordingly. 
                     try:  
                         post_facebook_message(message['sender']['id'], message['message']['text'])
                     except Exception as e:
@@ -116,12 +81,4 @@ class MyChatBotView(generic.View):
 
 
 def index(request):
-    search_string = request.GET.get("text")
-    print search_string
-    print test()
-    return HttpResponse(emoji_search(search_string))
-
-def test():
-    post_facebook_message('100006427286608','test message')
-
-
+    return HttpResponse('Hello world')

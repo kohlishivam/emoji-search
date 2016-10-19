@@ -175,8 +175,8 @@ class MyChatBotView(generic.View):
                             return HttpResponse()
                         else:
                             pass
-                except Exception as e:
-                    pass
+                    except Exception as e:
+                        pass
 
 
 

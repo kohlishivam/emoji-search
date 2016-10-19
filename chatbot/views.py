@@ -170,11 +170,11 @@ class MyChatBotView(generic.View):
 
 
                     try:
-                    if 'postback' in message:
-                        handle_postback(message['sender']['id'],message['postback']['payload'])
-                        return HttpResponse()
-                    else:
-                        pass
+                        if 'postback' in message:
+                            handle_postback(message['sender']['id'],message['postback']['payload'])
+                            return HttpResponse()
+                        else:
+                            pass
                 except Exception as e:
                     pass
 
